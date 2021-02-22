@@ -9,7 +9,7 @@ You can put your own train images and test images here to make comparison.
 ### Prerequisites ###
 1. Python3
 2. Python-opencv
-### Gettring Started  ###
+### Getting Started  ###
 Once this project is installed on your machine, go the ```proj.py``` and type the line below on the terminal to lunch the project
 
       python proj.py                        
