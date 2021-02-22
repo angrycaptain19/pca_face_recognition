@@ -11,7 +11,8 @@ You can put your own train images and test images here to make comparison.
 2. Python-opencv
 ### Gettring Started  ###
 Once this project is installed on your machine, go the ```proj.py``` and type the line below on the terminal to lunch the project
-       python proj.py 
+
+      python proj.py                        
 The gray face images for ```star_images``` and ```test_images``` will be automatically created at ```star_faces``` and ```test_faces```
 The "mean faces" images and "eigen faces" images will be automatically created at ```eigen_faces```
 ### Author ###
