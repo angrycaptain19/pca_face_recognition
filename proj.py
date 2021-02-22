@@ -134,14 +134,12 @@ if __name__ == "__main__":
         mat[:, i] = D[:, i] / mc
 
 
-    def get_coordinate (face_data,matrix):
-        coordinate = matrix.T * face_data
-        return coordinate
+    def get_coordinate(face_data,matrix):
+        return matrix.T * face_data
 
-    def calculate_distance (coordinate1, coordinate2):
+    def calculate_distance(coordinate1, coordinate2):
         difference = coordinate1 - coordinate2
-        distance = np.power(np.sum(np.power(difference,2)),1/2)
-        return distance
+        return np.power(np.sum(np.power(difference,2)),1/2)
 
 
     print("坐标转换")
