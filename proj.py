@@ -4,8 +4,7 @@ import cv2
 import re
 import shutil
 
-if __name__  == "__main__":
-
+if __name__ == "__main__":
     print("抓取 测试脸")
     # 抓取测试脸
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
@@ -13,7 +12,6 @@ if __name__  == "__main__":
     test_faces_root = ("test_faces")
     eigen_faces_root = ("eigen_faces")
     files = os.listdir(test_images_root)
-
 
     for each in files:
         file_path = os.path.join(test_images_root, each)
@@ -36,7 +34,6 @@ if __name__  == "__main__":
             cv2.imencode('.jpg', image_face_resize)[1].tofile(os.path.join(test_faces_root, each))
 
             # 画人脸矩形
-
             #img = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
             #cv2.namedWindow('Viking Detected!!')
             #cv2.imshow('Viking Detected!!', img)
@@ -137,12 +134,12 @@ if __name__  == "__main__":
         mat[:, i] = D[:, i] / mc
 
 
-    def get_zuobiao (face_data,matrix):
-        zuobiao = matrix.T * face_data
-        return zuobiao
+    def get_coordinate (face_data,matrix):
+        coordinate = matrix.T * face_data
+        return coordinate
 
-    def calculate_distance (zuobiao1, zuobiao2):
-        difference = zuobiao1- zuobiao2
+    def calculate_distance (coordinate1, coordinate2):
+        difference = coordinate1 - coordinate2
         distance = np.power(np.sum(np.power(difference,2)),1/2)
         return distance
 
@@ -150,35 +147,19 @@ if __name__  == "__main__":
     print("坐标转换")
 
     # 把明星字典对应的数据换为投影后的坐标
-    zuobiaos = {}
+    coordinates = {}
     for each_star in stars.keys():
         each_star_face_data = stars[each_star]
-        each_star_face_zuobiao = get_zuobiao(each_star_face_data, D)
-        zuobiaos[each_star] = each_star_face_zuobiao
+        each_star_face_coordinate = get_coordinate(each_star_face_data, D)
+        coordinates[each_star] = each_star_face_coordinate
     print("==================")
     print("完成 数据降维")
     print("==================")
 
-    #坐标分类
-    '''
-    def zhengze (a):
-        return re.findall('[\D]*', a)[0]
-    
-    zuobiaos2 = {}
-    for each_star in zuobiaos.keys():
-        current_zuobiao = zuobiaos[each_star]
-        star = zhengze(each_star)
-    
-        if  star in zuobiaos2:
-            zuobiaos2[star].append(current_zuobiao)
-        else:
-            zuobiaos2[star] = [current_zuobiao, ]
-    
-    print("坐标分类完成")
-    '''
+
     # 正则表达式 去掉编号
-    def zhengze (a):
-        return re.findall('[\D]*', a)[0]
+    def clean_name (name):
+        return re.findall('[\D]*', name)[0]
 
     print("开始识别 测试集")
     print("==================")
@@ -189,11 +170,11 @@ if __name__  == "__main__":
     for each_tested in files:
         test_data = cv2.imdecode(np.fromfile(os.path.join(test_faces_root, each_tested), dtype=np.uint8), 0)
         test_vector = np.mat(test_data.reshape(test_data.size)).T
-        test_zuobiao = get_zuobiao(test_vector,D)
+        test_coordiante = get_coordinate(test_vector,D)
 
-        for each_star in zuobiaos.keys():
-            each_vector = zuobiaos[each_star]
-            d = calculate_distance(each_vector, test_zuobiao)
+        for each_star in coordinates.keys():
+            each_vector = coordinates[each_star]
+            d = calculate_distance(each_vector, test_coordiante)
             differences[each_star] = d
 
         minValue = min(differences.values())
@@ -205,29 +186,29 @@ if __name__  == "__main__":
                 result = np.hstack((test_face, star_face))
 
                 # 测试原图
-                test_orig_root = "results/" + each_tested[0:-4] + " 像 " + zhengze(
+                test_orig_root = "results/" + each_tested[0:-4] + " 像 " + clean_name(
                     i) + " a.jpg"
 
                 shutil.copy("test_images/" + each_tested, test_orig_root)
 
                 # 匹配的原图
-                train_orig_root = "results/" + each_tested[0:-4] + " 像 " + zhengze(
+                train_orig_root = "results/" + each_tested[0:-4] + " 像 " + clean_name(
                     i) + " b.jpg"
                 shutil.copy("star_images/" + i + ".jpg", train_orig_root)
 
                 # 对比图图
-                cv2.imencode(".jpg", result)[1].tofile("results/" + each_tested[0:-4] + " 像 " + zhengze(i) + " c.jpg")
+                cv2.imencode(".jpg", result)[1].tofile("results/" + each_tested[0:-4] + " 像 " + clean_name(i) + " c.jpg")
 
                 # 原图投影
-                new_root_c = "results/" + each_tested[0:-4] + " 像 " + zhengze(i) + " d.jpg"
-                img_ty_orign = (mat * zuobiaos[i]).reshape(400,400)
+                new_root_c = "results/" + each_tested[0:-4] + " 像 " + clean_name(i) + " d.jpg"
+                img_ty_orign = (mat * coordinates[i]).reshape(400,400)
                 cv2.imencode('.jpg', img_ty_orign)[1].tofile(new_root_c)
 
 
                 # 测试图投影
                 new_root_d = "results/" + each_tested[
-                                                                                         0:-4] + " 像 " + zhengze(
+                                                                                         0:-4] + " 像 " + clean_name(
                     i) + " e.jpg"
-                img_ty_test = (mat * test_zuobiao).reshape(400,400)
+                img_ty_test = (mat * test_coordiante).reshape(400,400)
                 cv2.imencode('.jpg', img_ty_test)[1].tofile(new_root_d)
-                print("与    " + each_tested[0:-4] + "    最相似的是   " + zhengze(i))
+                print("与    " + each_tested[0:-4] + "    最相似的是   " + clean_name(i))
